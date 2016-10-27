@@ -33,6 +33,6 @@ elixir(mix => {
         'sb-admin-2.js',
         'scripts.js'
 
-    ], './public/js');
+    ], './public/js/libs.js');
 
 });
