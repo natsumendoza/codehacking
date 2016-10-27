@@ -1,3 +1,6 @@
+for laravel collective html installation:
+    composer require laravelcollective/html
+
 Form:
 
 {!! Form::open(['method' => 'post', 'action' => 'PostsController@store']) !!}
