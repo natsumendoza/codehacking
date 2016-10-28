@@ -8,6 +8,8 @@ use App\Photo;
 use Illuminate\Http\Request;
 use App\Http\Requests\UsersRequest;
 use App\Http\Requests\UsersEditRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AdminUsersController extends Controller
 {
@@ -65,6 +67,10 @@ class AdminUsersController extends Controller
         $input['password'] = bcrypt($request->password);
 
         User::create($input);
+
+        $feedback = 'The user has been created';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
 
         return redirect('/admin/users');
 
@@ -128,6 +134,10 @@ class AdminUsersController extends Controller
 
         $user->update($input);
 
+        $feedback = 'The user has been updated';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
+
         return redirect('/admin/users');
 
     }
@@ -140,6 +150,25 @@ class AdminUsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $user = User::findOrFail($id);
+
+        unlink(public_path() . $user->photo->path);
+
+        $user->delete();
+
+        $feedback = 'The user has been deleted';
+        $class = 'bg-danger';
+        $this->getSessionFlash($feedback, $class);
+
+        return redirect('/admin/users');
+
+    }
+
+    public function getSessionFlash($feedback, $class) {
+
+        Session::flash('action_feedback', $feedback);
+        Session::flash('action_class', $class);
+
     }
 }

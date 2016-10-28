@@ -2,6 +2,12 @@
 
 @section('content')
 
+    @if (Session::has('action_feedback'))
+
+        <p class="{{session('action_class')}}">{{session('action_feedback')}}</p>
+
+    @endif
+
     <h1>Users</h1>
 
     <table class="table">
