@@ -2,6 +2,8 @@
 
 @section('content')
 
+    <h1>Create User</h1>
+
     {!! Form::open(['method' => 'post', 'action' => 'AdminUsersController@store', 'files' => true]) !!}
 
         {{ csrf_field() }}
