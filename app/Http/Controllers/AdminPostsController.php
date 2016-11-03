@@ -8,6 +8,7 @@ use App\Post;
 use App\Photo;
 use App\Http\Requests\PostsCreateRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AdminPostsController extends Controller
 {
@@ -65,6 +66,10 @@ class AdminPostsController extends Controller
 
         $user->posts()->create($input);
 
+        $feedback = 'The post has been created';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
+
         return redirect('/admin/posts');
 
     }
@@ -88,7 +93,13 @@ class AdminPostsController extends Controller
      */
     public function edit($id)
     {
-        //
+
+        $post = Post::findOrFail($id);
+
+        $categories = Category::pluck('name', 'id')->all();
+
+        return view('admin.posts.edit', compact('post', 'categories'));
+
     }
 
     /**
@@ -100,7 +111,29 @@ class AdminPostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $input = $request->all();
+
+        if ($file = $request->file('photo_id')) {
+
+            $name = time() . $file->getClientOriginalName();
+
+            $file->move('images', $name);
+
+            $photo = Photo::create(['path' => $name]);
+
+            $input['photo_id'] = $photo->id;
+
+        }
+
+        Auth::user()->posts()->whereId($id)->first()->update($input);
+
+        $feedback = 'The post has been updated';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
+
+        return redirect('/admin/posts');
+
     }
 
     /**
@@ -111,6 +144,29 @@ class AdminPostsController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $post = Post::findOrFail($id);
+
+        if ($post->photo) {
+
+            unlink(public_path() . $post->photo->path);
+
+        }
+
+        $post->delete();
+
+        $feedback = 'The post has been deleted';
+        $class = 'bg-danger';
+        $this->getSessionFlash($feedback, $class);
+
+        return redirect('/admin/posts');
+
+    }
+
+    public function getSessionFlash($feedback, $class) {
+
+        Session::flash('action_feedback', $feedback);
+        Session::flash('action_class', $class);
+
     }
 }
