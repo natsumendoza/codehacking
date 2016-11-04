@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Http\Requests\CategoriesCreateRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AdminCategoriesController extends Controller
 {
@@ -38,10 +40,14 @@ class AdminCategoriesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoriesCreateRequest $request)
     {
 
         Category::create($request->all());
+
+        $feedback = 'The category has been created';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
 
         return redirect('/admin/categories');
 
@@ -66,7 +72,11 @@ class AdminCategoriesController extends Controller
      */
     public function edit($id)
     {
-        //
+
+        $category = Category::findOrFail($id);
+
+        return view('admin.categories.edit', compact('category'));
+
     }
 
     /**
@@ -78,7 +88,17 @@ class AdminCategoriesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $category = Category::findOrFail($id);
+
+        $category->update($request->all());
+
+        $feedback = 'The category has been updated';
+        $class = 'bg-success';
+        $this->getSessionFlash($feedback, $class);
+
+        return redirect('/admin/categories');
+
     }
 
     /**
@@ -89,6 +109,22 @@ class AdminCategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        Category::findOrFail($id)->delete();
+
+        $feedback = 'The category has been deleted';
+        $class = 'bg-danger';
+        $this->getSessionFlash($feedback, $class);
+
+        return redirect('/admin/categories');
+
     }
+
+    public function getSessionFlash($feedback, $class) {
+
+        Session::flash('action_feedback', $feedback);
+        Session::flash('action_class', $class);
+
+    }
+
 }
